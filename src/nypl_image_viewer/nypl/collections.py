@@ -2,13 +2,15 @@ from datetime import datetime
 import json
 from typing import cast
 
-from ..http.client import (
+from python_stuff.http.client import (
     HttpClient,
     Pagination,
 )
+
 from ..filesystem import (
     write_file,
     read_file,
+    file_exist,
 )
 
 
@@ -76,3 +78,9 @@ def read_from_cache(
     data = cast(dict, data)
     for collection in data["results"]:
         print_collection_data(collection)
+
+def cache_exist(
+        target_dir: tuple = CACHE_DEST_DIR,
+        target_name: str = CACHE_DEST_NAME,
+) -> bool:
+    return file_exist(target=(*target_dir, target_name))

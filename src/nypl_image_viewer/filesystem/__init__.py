@@ -3,6 +3,10 @@ import re
 from pathlib import Path
 
 
+def file_exist(target: tuple) -> bool:
+    return Path(*target).exists()
+
+
 def write_file(data: str, dest_dir: tuple, dest_name: str) -> None:
     dir = Path(*dest_dir)
     if not dir.exists() or not dir.is_dir():

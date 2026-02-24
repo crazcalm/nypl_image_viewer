@@ -1,10 +1,11 @@
 from datetime import datetime
 import json
 
-from ..http.client import (
+from python_stuff.http.client import (
     HttpClient,
     Pagination,
 )
+
 from ..filesystem import (
     write_file,
 )
@@ -68,6 +69,10 @@ def create_collections_item_cache(
     cache["results"] = []  # type: ignore[assignment]
 
     for json_data in pag_generator:
+        # Check if results exist:
+        if json_data["nyplAPI"]["response"].get("numItems") in (None, "0"):
+            continue
+        
         for item in json_data["nyplAPI"]["response"]["collection"]:
             if item.get("mods", {}).get("typeOfResource") != "still image":
                 continue

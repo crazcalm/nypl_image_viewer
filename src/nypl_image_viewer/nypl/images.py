@@ -1,8 +1,9 @@
 from pathlib import Path
 
-from ..http.client import (
+from python_stuff.http.client import (
     HttpClient,
 )
+
 
 def download_image(image_id: str, dest: tuple) -> None:
     url = f"http://images.nypl.org/index.php?id={image_id}&t=w&download=1"
