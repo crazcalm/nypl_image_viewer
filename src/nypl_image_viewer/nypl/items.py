@@ -72,7 +72,7 @@ def create_collections_item_cache(
         # Check if results exist:
         if json_data["nyplAPI"]["response"].get("numItems") in (None, "0"):
             continue
-        
+
         for item in json_data["nyplAPI"]["response"]["collection"]:
             if item.get("mods", {}).get("typeOfResource") != "still image":
                 continue
@@ -112,7 +112,9 @@ def create_collections_item_cache(
                         dest_name="capture_cache.json",
                     )
 
-                    download_image(image_id=image_id, dest=(*capture_dir, f"{image_id}.jpg"))
+                    download_image(
+                        image_id=image_id, dest=(*capture_dir, f"{image_id}.jpg")
+                    )
 
                     print_item_data(
                         data=capture_json,

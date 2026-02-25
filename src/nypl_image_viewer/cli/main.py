@@ -10,6 +10,7 @@ from ..nypl import (
 
 ENV_API_KEY_NAME: str = "NYPL_DIGITAL_COLLECTIONS_API_KEY"
 
+
 def parsed_args(env_api_key_name=ENV_API_KEY_NAME):
     api_key_default = None
 
@@ -39,10 +40,9 @@ def main():
                     collections.read_from_cache()
                 else:
                     pag_generator = collections.get_pagination_generator(
-                    api_key=cli_args.api_key
-                )
+                        api_key=cli_args.api_key
+                    )
                     collections.create_cache(pag_generator)
-                    
 
         case "get":
             collection_uuids = getattr(cli_args, "collection-uuid")
