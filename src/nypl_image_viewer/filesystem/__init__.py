@@ -29,11 +29,12 @@ def read_file(target_dir: tuple, target_name: str, format: str = "json") -> str 
     return data
 
 
-def top_down_get_directories(start_path: Path, regex_filter: str | None = None) -> list[Path]:
+def top_down_get_directories(
+    start_path: Path, regex_filter: str | None = None
+) -> list[Path]:
     results = []
     seen = set()
     for root, dirs, files in start_path.walk():
-        data = {"root": root, "dirs": dirs, "files": files}
         dir_list = [root / dir_ for dir_ in dirs]
 
         for dir_ in dir_list:
@@ -45,14 +46,13 @@ def top_down_get_directories(start_path: Path, regex_filter: str | None = None) 
                 if str(dir_) not in seen:
                     results.append(dir_)
                     seen.add(str(dir_))
-        
+
     return results
 
 
 def top_down_get_files(start_path: Path, regex_filter: str | None) -> list[Path]:
     results = []
     for root, dirs, files in start_path.walk():
-        data = {"root": root, "dirs": dirs, "files": files}
         file_list = [root / file_ for file_ in files]
 
         for file_ in file_list:
@@ -63,4 +63,3 @@ def top_down_get_files(start_path: Path, regex_filter: str | None) -> list[Path]
                 results.append(file_)
 
     return results
-    

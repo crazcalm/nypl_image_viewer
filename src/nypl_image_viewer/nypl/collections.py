@@ -79,8 +79,9 @@ def read_from_cache(
     for collection in data["results"]:
         print_collection_data(collection)
 
+
 def cache_exist(
-        target_dir: tuple = CACHE_DEST_DIR,
-        target_name: str = CACHE_DEST_NAME,
+    target_dir: tuple = CACHE_DEST_DIR,
+    target_name: str = CACHE_DEST_NAME,
 ) -> bool:
     return file_exist(target=(*target_dir, target_name))
