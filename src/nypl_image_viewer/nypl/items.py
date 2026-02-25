@@ -12,6 +12,25 @@ from ..filesystem import (
 from .images import download_image
 
 
+def get_pagination_generator_stop_function(per_page: int):
+    def inner_func(json_data: dict) -> bool:
+        result = False
+
+        # exit early if there are no results
+        if json_data["nyplAPI"]["response"].get("numResults") in (None, "0"):
+            result = True
+
+        elif json_data["nyplAPI"]["response"].get("collection"):
+            if len(json_data["nyplAPI"]["response"]["collection"]) < per_page:
+                result = True
+        elif json_data["nyplAPI"]["response"]["item"]:
+            result = True
+
+        return result
+
+    return inner_func
+
+
 def get_pagination_generator(api_key: str, collection_uuid: str, per_page: int = 500):
     """
     collections/uuid/items endpoint
@@ -27,9 +46,7 @@ def get_pagination_generator(api_key: str, collection_uuid: str, per_page: int =
     pag = Pagination(
         http_client=my_client,
         page_url_param="page",
-        stop_condition_func=lambda x: (
-            len(x["nyplAPI"]["response"]["collection"]) < per_page
-        ),
+        stop_condition_func=get_pagination_generator_stop_function(per_page),
     )
     return pag.iter(endpoint="items")
 
@@ -64,16 +81,24 @@ def create_collections_item_cache(
     dest_parent_dir: tuple = ("data", "collections"),
     dest_name: str = "collections_items_cache.json",
 ) -> None:
+    found_images = False
     cache = {}
     cache["metadata"] = {"crawl_date": str(datetime.today())}
     cache["results"] = []  # type: ignore[assignment]
 
     for json_data in pag_generator:
         # Check if results exist:
-        if json_data["nyplAPI"]["response"].get("numItems") in (None, "0"):
+        if json_data["nyplAPI"]["response"].get("numResults") in (None, "0"):
+            # TODO: figure out what I want to say here
+            print("No public domain items found")
             continue
 
-        for item in json_data["nyplAPI"]["response"]["collection"]:
+        data = (
+            json_data["nyplAPI"]["response"]["collection"]
+            if json_data["nyplAPI"]["response"].get("collection")
+            else [json_data["nyplAPI"]["response"]["item"]]
+        )
+        for item in data:
             if item.get("mods", {}).get("typeOfResource") != "still image":
                 continue
 
@@ -87,9 +112,16 @@ def create_collections_item_cache(
             for item_json in pag_item_details.iter(endpoint=item["uuid"]):
                 cache["results"].append(item_json)  # type: ignore[attr-defined]
 
-                for capture_json in item_json["nyplAPI"]["response"]["imm_captures"][
-                    "capture"
-                ]:
+                # TODO: Capture can be a list or a single entry?! Figure this out
+                capture_data = (
+                    item_json["nyplAPI"]["response"]["imm_captures"]["capture"]
+                    if isinstance(
+                        item_json["nyplAPI"]["response"]["imm_captures"]["capture"],
+                        list,
+                    )
+                    else [item_json["nyplAPI"]["response"]["imm_captures"]["capture"]]
+                )
+                for capture_json in capture_data:
                     """
                     Around here, I should:
                     - create data/collections/c-uuid/items/i-uuid/image/image-id/image_file
@@ -124,8 +156,12 @@ def create_collections_item_cache(
                             "title"
                         ].get("$"),
                     )
+                    found_images = True
 
     json_str = json.dumps(cache)
     write_file(
         data=json_str, dest_dir=(*dest_parent_dir, collection_uuid), dest_name=dest_name
     )
+
+    if found_images is False:
+        print("No images found")
