@@ -70,7 +70,10 @@ class CollectionStore:
         results = []
 
         for item in self.parent_dir.iterdir():
-            if item.is_dir():
+            # 28 is a magic number, but really I just wanted a soft filter to make
+            # sure that dirs with typically name lengths are not picked up.
+            # ie. I only want to return the UUID named directories
+            if item.is_dir() and len(item.name) > 28:
                 results.append(ItemImageStore(parent_dir=item))
 
         return results
