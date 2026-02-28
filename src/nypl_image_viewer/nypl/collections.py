@@ -11,6 +11,8 @@ from ..filesystem import (
     write_file,
     read_file,
     file_exist,
+    dir_exist,
+    delete_directory_tree,
 )
 
 
@@ -85,3 +87,17 @@ def cache_exist(
     target_name: str = CACHE_DEST_NAME,
 ) -> bool:
     return file_exist(target=(*target_dir, target_name))
+
+
+def collection_exist(
+        collection_uuid: str,
+        base_dir: tuple = CACHE_DEST_DIR,
+) -> bool:
+    return dir_exist(target=(*base_dir, collection_uuid))
+
+    
+def remove_collection(
+    collection_uuid: str,
+    base_dir: tuple = CACHE_DEST_DIR,
+) -> None:
+    delete_directory_tree(target=(*base_dir, collection_uuid))

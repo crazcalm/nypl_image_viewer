@@ -7,6 +7,21 @@ from ..filesystem import (
 
 COLLECTION_PATH = Path(*("data", "collections"))
 
+class Image:
+    def __init__(self, path: Path) -> None:
+        self._path = path
+        self._title = None
+        
+    @property
+    def path(self) -> Path:
+        return self._path
+
+    @property
+    def title(self) -> str | None:
+        import pdb
+        pdb.set_trace()
+        self.path
+
 
 class ItemImageStore:
     JPG_PATTERN = "^.+\\.(jpg|jpeg)$"
@@ -26,7 +41,7 @@ class ItemImageStore:
                 break
         return result
 
-    def get(self, image_id: str) -> Path | None:
+    def get(self, image_id: str) -> Image | None:
         result = None
         images = top_down_get_files(
             start_path=self.parent_dir, regex_filter=self.JPG_PATTERN
@@ -34,14 +49,25 @@ class ItemImageStore:
 
         for image in images:
             if image.name == f"{image_id}.jpg":
-                result = image
+                result = Image(path=image)
                 break
         return result
 
-    def all(self) -> list[Path]:
-        return top_down_get_files(
+    def all(self, remove_duplicate_images=True) -> list[Image]:
+        paths = top_down_get_files(
             start_path=self.parent_dir, regex_filter=self.JPG_PATTERN
         )
+        if remove_duplicate_images:
+            seen = set()
+            temp = []
+            for path in paths:
+                if path.name in seen:
+                    continue
+                temp.append(path)
+                seen.add(path.name)
+            paths = temp
+
+        return [Image(path=path) for path in paths]
 
 
 class CollectionStore:

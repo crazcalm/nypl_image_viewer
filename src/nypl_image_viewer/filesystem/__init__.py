@@ -1,7 +1,16 @@
 import json
 import re
 from pathlib import Path
+import shutil
 
+
+def delete_directory_tree(target: tuple) -> None:
+    shutil.rmtree(Path(*target))
+
+    
+# TODO: Merge or refactor
+def dir_exist(target: tuple) -> bool:
+    return Path(*target).exists()
 
 def file_exist(target: tuple) -> bool:
     return Path(*target).exists()

@@ -80,7 +80,13 @@ def main():
             Once I have the imageID, can can use the below link to download the image
             http://images.nypl.org/index.php?id=1558437&t=w&download=1
             """
-
+        case "delete":
+            for collection_uuid in getattr(cli_args, "collection-uuid"):
+                if not collections.collection_exist(collection_uuid):
+                    print(f"Could not find collection {collection_uuid}")
+                    continue
+                collections.remove_collection(collection_uuid)
+                    
         case _:
             raise Exception("Not implemented yet")
 

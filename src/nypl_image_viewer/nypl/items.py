@@ -101,7 +101,7 @@ def create_collections_item_cache(
         for item in data:
             if item.get("mods", {}).get("typeOfResource") != "still image":
                 continue
-
+            
             pag_item_details = Pagination(
                 http_client=http_client_item_details,
                 page_url_param="page",
@@ -142,6 +142,11 @@ def create_collections_item_cache(
                         data=json.dumps(capture_json),
                         dest_dir=capture_dir,
                         dest_name="capture_cache.json",
+                    )
+                    write_file(
+                        data=json.dumps(item),
+                        dest_dir=capture_dir,
+                        dest_name="item_details.json",
                     )
 
                     download_image(
